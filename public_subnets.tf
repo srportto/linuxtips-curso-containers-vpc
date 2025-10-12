@@ -1,3 +1,6 @@
+## -----------------------------------------------------------------------------
+## criacao das subnets que formarao a o conjunto de rede publica da VPC
+## 
 resource "aws_subnet" "public_subnet_1a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.48.0/24"
@@ -29,7 +32,7 @@ resource "aws_subnet" "public_subnet_1c" {
 }
 
 ## -----------------------------------------------------------------------------
-## Router table p/ acesso publico
+## Criando a Router table direcionar o acesso das subnets do conjunto publico - sair para internet via internet gateway (bidirecional: entra e sai)
 ## -----------------------------------------------------------------------------
 resource "aws_route_table" "public_internet_access" {
   vpc_id = aws_vpc.main.id
@@ -40,12 +43,22 @@ resource "aws_route_table" "public_internet_access" {
 
 }
 
+##-----------------------------------------------
+##Criando a rota p/ acesso a internet(bidirecional: entra e sai)
+##-----------------------------------------------
+
 resource "aws_route" "public_access" {
   route_table_id         = aws_route_table.public_internet_access.id
   destination_cidr_block = "0.0.0.0/0"
+
+  #vinculando o internet gateway a rota para possibilitar acesso a internet(bidirecional: entra e sai ou seja, acesso publico)
   gateway_id             = aws_internet_gateway.igw.id
 }
 
+
+## ----------------------------------------------
+## Mapeamento/associaçao das subnets publicas para a route table com acesso a internet(bidirecional: entra e sai)
+## ----------------------------------------------
 resource "aws_route_table_association" "public_1a" {
   subnet_id      = aws_subnet.public_subnet_1a.id
   route_table_id = aws_route_table.public_internet_access.id

@@ -1,3 +1,6 @@
+## -----------------------------------------------------------------------------
+## criacao das subnets que formarao a o conjunto de rede privada da VPC, mas que terao acesso a internet via nat gateway apenas de saida (unidirecional: so sai)
+## 
 resource "aws_subnet" "private_subnet_1a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.0.0/20"
@@ -29,7 +32,7 @@ resource "aws_subnet" "private_subnet_1c" {
 }
 
 ## -----------------------------------------------------------------------------
-## Router table p/ acesso pprivado - sair para internet via natGateway
+## Criando as Routers tables para direcionar acesso das subnets do conjunto privado - sair para internet via natGateway(unidirecional: so sai)
 ## -----------------------------------------------------------------------------
 resource "aws_route_table" "private_internet_access_1a" {
   vpc_id = aws_vpc.main.id
@@ -40,14 +43,6 @@ resource "aws_route_table" "private_internet_access_1a" {
 
 }
 
-resource "aws_route" "private_access_1a" {
-  route_table_id         = aws_route_table.private_internet_access_1a.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.ngw_1a.id
-}
-
-## ---------------------
-
 resource "aws_route_table" "private_internet_access_1b" {
   vpc_id = aws_vpc.main.id
 
@@ -56,14 +51,6 @@ resource "aws_route_table" "private_internet_access_1b" {
   }
 
 }
-
-resource "aws_route" "private_access_1b" {
-  route_table_id         = aws_route_table.private_internet_access_1b.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.ngw_1b.id
-}
-
-## ---------------------
 
 resource "aws_route_table" "private_internet_access_1c" {
   vpc_id = aws_vpc.main.id
@@ -74,13 +61,42 @@ resource "aws_route_table" "private_internet_access_1c" {
 
 }
 
+
+
+## ----------------------------------------------
+## Criando as rotas p/ acesso a internet(unidirecional: so sai, ou seja, acesso privado) para o rotetable de cada subnet privada
+## ----------------------------------------------
+
+resource "aws_route" "private_access_1a" {
+  route_table_id         = aws_route_table.private_internet_access_1a.id
+  destination_cidr_block = "0.0.0.0/0"
+
+  #vinculando o Nat gateway a rota para possibilitar acesso a internet(unidirecional: so sai, ou seja, acesso privado)
+  gateway_id             = aws_nat_gateway.ngw_1a.id
+}
+
+
+resource "aws_route" "private_access_1b" {
+  route_table_id         = aws_route_table.private_internet_access_1b.id
+  destination_cidr_block = "0.0.0.0/0"
+
+  #vinculando o Nat gateway a rota para possibilitar acesso a internet(unidirecional: so sai, ou seja, acesso privado)
+  gateway_id             = aws_nat_gateway.ngw_1b.id
+}
+
+
 resource "aws_route" "private_access_1c" {
   route_table_id         = aws_route_table.private_internet_access_1c.id
   destination_cidr_block = "0.0.0.0/0"
+  #vinculando o Nat gateway a rota para possibilitar acesso a internet(unidirecional: so sai, ou seja, acesso privado)
   gateway_id             = aws_nat_gateway.ngw_1c.id
 }
 
 
+
+# ----------------------------------------------
+## Mapeamento/associaçao das subnets privadas para a route table com acesso a internet(unidirecional: so sai, ou seja, acesso privado)
+## ----------------------------------------------
 resource "aws_route_table_association" "private_1a" {
   subnet_id      = aws_subnet.private_subnet_1a.id
   route_table_id = aws_route_table.private_internet_access_1a.id
