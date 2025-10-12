@@ -1,3 +1,11 @@
+## Gerando outputs para os parametros do SSM Parameter Store
+## outputs sao importantes para pegar valores de recursos criados em outros modulos ou arquivos
+## e usar esses valores em outros modulos ou arquivos
+
+
+### 
+### P/ VPC ------------------------------------------------------------------------
+###
 output "ssm_vpc_id" {
   value = aws_ssm_parameter.vpc_parameter.id
 }
