@@ -42,6 +42,8 @@ resource "aws_nat_gateway" "ngw_1a" {
   tags = {
     Name = format("%s-ngw-1a", var.project_name)
   }
+
+  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_nat_gateway" "ngw_1b" {
@@ -51,6 +53,8 @@ resource "aws_nat_gateway" "ngw_1b" {
   tags = {
     Name = format("%s-ngw-1b", var.project_name)
   }
+
+  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_nat_gateway" "ngw_1c" {
@@ -60,4 +64,6 @@ resource "aws_nat_gateway" "ngw_1c" {
   tags = {
     Name = format("%s-ngw-1c", var.project_name)
   }
+
+  depends_on = [aws_internet_gateway.igw]
 }
